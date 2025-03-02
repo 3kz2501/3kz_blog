@@ -1,6 +1,49 @@
+@font-face {
+  font-family: "PleckJP";
+  src: url("/fonts/PleckJP/PleckJP.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PleckJP";
+  src: url("/fonts/PleckJP/PleckJP-Bold.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --jade-color: #00a86b;
+  --jade-light: #4ad295;
+  --jade-dark: #008f5d;
+  --font-family:
+    "PleckJP", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+  background-color: #000000;
+  color: var(--jade-color);
+  font-family: var(--font-family);
+}
+
+/* その他のCSSはそのまま続く */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --jade-color: #00a86b;
+  --jade-light: #4ad295;
+  --jade-dark: #008f5d;
+}
+
+body {
+  background-color: #000000;
+  color: var(--jade-color);
+}
 
 .main-container {
   display: grid;
@@ -10,7 +53,8 @@
 }
 
 .markdown {
-  @apply text-gray-900 leading-normal break-words;
+  @apply leading-normal break-words;
+  color: var(--jade-color);
 }
 
 .markdown > * + * {
@@ -27,10 +71,12 @@
 
 .markdown strong {
   @apply font-semibold;
+  color: var(--jade-light);
 }
 
 .markdown a {
-  @apply text-blue-600 font-semibold;
+  color: var(--jade-color);
+  @apply font-semibold underline;
 }
 
 .markdown strong a {
@@ -39,38 +85,51 @@
 
 .markdown h1 {
   @apply leading-tight border-b text-4xl font-semibold mb-4 mt-6 pb-2;
+  color: var(--jade-light);
+  border-color: var(--jade-dark);
 }
 
 .markdown h2 {
   @apply leading-tight border-b text-2xl font-semibold mb-4 mt-6 pb-2;
+  color: var(--jade-light);
+  border-color: var(--jade-dark);
 }
 
 .markdown h3 {
   @apply leading-snug text-lg font-semibold mb-4 mt-6;
+  color: var(--jade-light);
 }
 
 .markdown h4 {
   @apply leading-none text-base font-semibold mb-4 mt-6;
+  color: var(--jade-light);
 }
 
 .markdown h5 {
   @apply leading-tight text-sm font-semibold mb-4 mt-6;
+  color: var(--jade-light);
 }
 
 .markdown h6 {
-  @apply leading-tight text-sm font-semibold text-gray-600 mb-4 mt-6;
+  @apply leading-tight text-sm font-semibold mb-4 mt-6;
+  color: var(--jade-light);
 }
 
 .markdown blockquote {
-  @apply text-base border-l-4 border-gray-200 pl-4 pr-4 text-gray-600;
+  @apply text-base border-l-4 pl-4 pr-4;
+  border-color: var(--jade-dark);
+  color: var(--jade-light);
 }
 
 .markdown code {
-  @apply font-mono text-sm inline bg-gray-200 rounded px-1 py-[2px];
+  @apply font-mono text-sm inline rounded px-1 py-[2px];
+  background-color: #0a0a0a;
+  color: var(--jade-color);
 }
 
 .markdown pre {
-  @apply bg-gray-100 rounded p-4;
+  @apply rounded p-4;
+  background-color: #0a0a0a;
 }
 
 .markdown pre code {
@@ -87,21 +146,42 @@
 
 .markdown kbd {
   @apply text-xs inline-block rounded border px-1 py-5 align-middle font-normal font-mono shadow;
+  border-color: var(--jade-dark);
 }
 
 .markdown table {
-  @apply text-base border-gray-600;
+  @apply text-base;
+  border-color: var(--jade-dark);
 }
 
 .markdown th {
   @apply border py-1 px-3;
+  border-color: var(--jade-dark);
 }
 
 .markdown td {
   @apply border py-1 px-3;
+  border-color: var(--jade-dark);
 }
 
 /* Override pygments style background color. */
 .markdown .highlight pre {
-  @apply bg-gray-100 !important;
+  background-color: #0a0a0a !important;
+}
+
+/* テキストカラークラスのオーバーライド */
+.text-jade {
+  color: var(--jade-color) !important;
+}
+
+.text-jade-light {
+  color: var(--jade-light) !important;
+}
+
+.text-jade-dark {
+  color: var(--jade-dark) !important;
+}
+
+.text-white {
+  color: var(--jade-color) !important;
 }

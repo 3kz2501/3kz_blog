@@ -4,9 +4,9 @@ import { LINK } from "../constants";
 const SnsButton: FC<{ title: string }> = ({ title }) => {
   if (typeof window === "undefined") {
     return (
-      <div class="flex items-center justify-center mt-10 gap-3 ">
+      <div class="flex items-center justify-center mt-10 gap-3">
         <div role="status" class="max-w-sm animate-pulse w-full">
-          <div class="h-11 bg-gray-200 rounded-3xl w-full" />
+          <div class="h-11 bg-gray-800 rounded-3xl w-full" />
         </div>
       </div>
     );
@@ -20,7 +20,7 @@ const SnsButton: FC<{ title: string }> = ({ title }) => {
         }`}
         target={"_blank"}
         rel={"noreferrer"}
-        class="bg-[#0f1419] text-white flex items-center text-sm rounded-3xl py-3 px-4"
+        class="bg-[#0f1419] text-jade-light flex items-center text-sm rounded-3xl py-3 px-4 border border-jade-dark"
       >
         <img
           src="/static/twitter-alt.svg"
