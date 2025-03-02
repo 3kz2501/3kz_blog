@@ -1,6 +1,6 @@
 import { jsxRenderer } from "hono/jsx-renderer";
-import SnsButton from "../../islands/ShareButton";
 import Card from "../../components/Card";
+import SnsButton from "../../islands/ShareButton";
 
 export default jsxRenderer(({ children, Layout, frontmatter }) => {
   const _title = `${frontmatter?.title} | 3kz Blog`;
