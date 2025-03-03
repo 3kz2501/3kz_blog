@@ -1,0 +1,36 @@
+{
+  "app/client.ts": {
+    "file": "static/client-DNrR7D2B.js",
+    "name": "client",
+    "src": "app/client.ts",
+    "isEntry": true,
+    "dynamicImports": [
+      "app/islands/ShareButton.tsx",
+      "node_modules/honox/dist/client/runtime.js",
+      "node_modules/honox/dist/client/runtime.js"
+    ]
+  },
+  "app/islands/ShareButton.tsx": {
+    "file": "static/ShareButton-C9G0UybX.js",
+    "name": "ShareButton",
+    "src": "app/islands/ShareButton.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "app/client.ts"
+    ]
+  },
+  "app/style.css": {
+    "file": "static/assets/style.css",
+    "src": "app/style.css",
+    "isEntry": true
+  },
+  "node_modules/honox/dist/client/runtime.js": {
+    "file": "static/runtime-CC6x0Qm5.js",
+    "name": "runtime",
+    "src": "node_modules/honox/dist/client/runtime.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "app/client.ts"
+    ]
+  }
+}
