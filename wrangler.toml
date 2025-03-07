@@ -1,6 +1,5 @@
 name = "kz-blog"
 compatibility_date = "2025-03-02"
-compatibility_flags = ["nodejs_compat"]
 
 [site]
 bucket = "./dist"

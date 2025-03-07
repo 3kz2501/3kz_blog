@@ -1,5 +1,4 @@
 import { jsxRenderer } from "hono/jsx-renderer";
-import Card from "../../components/Card";
 import SnsButton from "../../islands/ShareButton";
 
 export default jsxRenderer(({ children, Layout, frontmatter }) => {
@@ -7,11 +6,7 @@ export default jsxRenderer(({ children, Layout, frontmatter }) => {
 
   return (
     <Layout title={_title} description={frontmatter?.description}>
-      <div class="markdown">
-        {typeof children === "function"
-          ? children({ components: { Card } })
-          : children}
-      </div>
+      <div class="markdown">{children}</div>
       <SnsButton title={_title} />
     </Layout>
   );

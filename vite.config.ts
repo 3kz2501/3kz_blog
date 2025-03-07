@@ -35,7 +35,6 @@ export default defineConfig(({ mode }) => {
         jsxImportSource: "hono/jsx",
         remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
         rehypePlugins: [rehypeHighlight],
-        // providerImportSource: "./app/components/mdx-provider",
       }),
       ssg({ entry }),
     ],
