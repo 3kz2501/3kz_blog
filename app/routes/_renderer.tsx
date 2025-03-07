@@ -46,7 +46,7 @@ export default jsxRenderer(({ children, title, description }) => {
         <header class="bg-black border-b border-jade-dark">
           <div class="max-w-screen-2xl mx-auto flex h-14 items-center px-6">
             {/* Blog title */}
-            <a href="/" class="text-jade font-bold text-5xl">
+            <a href="/" class="text-jade text-4xl">
               3kz Blog
             </a>
 
@@ -67,7 +67,7 @@ export default jsxRenderer(({ children, title, description }) => {
                 <img
                   src="/static/twitter-alt.svg"
                   alt="x-icon"
-                  class="w-6 h-6"
+                  class="w-4 h-4"
                 />
               </a>
               <a
@@ -79,7 +79,7 @@ export default jsxRenderer(({ children, title, description }) => {
                 <img
                   src="/static/github.svg"
                   alt="github-icon"
-                  class="w-6 h-6"
+                  class="w-4 h-4"
                 />
               </a>
               <a
@@ -91,7 +91,7 @@ export default jsxRenderer(({ children, title, description }) => {
                 <img
                   src="/static/twitch.svg"
                   alt="twitch-icon"
-                  class="w-6 h-6"
+                  class="w-4 h-4"
                 />
               </a>
             </div>
