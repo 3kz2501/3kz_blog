@@ -56,8 +56,8 @@ export default jsxRenderer(({ children, title, description }) => {
               <Navigation />
             </div>
 
-            {/* SNS icons on right */}
-            <div class="flex items-center gap-3">
+            {/* SNS icons on right - 強制的に右寄せ */}
+            <div class="flex items-center gap-3 ml-auto">
               <a href={LINK.X} target={"_blank"} rel={"noreferrer"} class="p-1">
                 <img
                   src="/static/twitter-alt.svg"
