@@ -44,20 +44,25 @@ export default jsxRenderer(({ children, title, description }) => {
       </head>
       <body class="main-container">
         <header class="bg-black border-b border-jade-dark">
-          <div class="max-w-screen-2xl mx-auto flex h-14 items-center justify-between px-6">
-            {/* Left section with blog title and navigation */}
-            <div class="flex items-center gap-6">
-              {/* Blog title */}
-              <a href="/" class="text-jade font-bold text-xl">
-                3kz Blog
-              </a>
+          <div class="max-w-screen-2xl mx-auto flex h-14 items-center px-6">
+            {/* Blog title */}
+            <a href="/" class="text-jade font-bold text-5xl">
+              3kz Blog
+            </a>
 
-              {/* Navigation pages */}
+            {/* Divider */}
+            <div class="text-jade-dark mx-2">|</div>
+
+            {/* Navigation pages */}
+            <div class="mx-4">
               <Navigation />
             </div>
 
-            {/* SNS icons on right - 強制的に右寄せ */}
-            <div class="flex items-center gap-3 ml-auto">
+            {/* Divider */}
+            <div class="text-jade-dark mx-2">|</div>
+
+            {/* SNS icons */}
+            <div class="flex items-center gap-3 mx-4">
               <a href={LINK.X} target={"_blank"} rel={"noreferrer"} class="p-1">
                 <img
                   src="/static/twitter-alt.svg"
