@@ -2,7 +2,7 @@ node_modules
 .wrangler
 .dev.vars
 .hono
-dist/*
+dist
 
 # Change them to your taste:
 yarn.lock

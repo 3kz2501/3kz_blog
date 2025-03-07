@@ -44,7 +44,7 @@ export default jsxRenderer(({ children, title, description }) => {
       </head>
       <body class="main-container">
         <header class="bg-black border-b border-jade-dark">
-          <div class="max-w-screen-2xl mx-auto flex h-14 items-center px-6">
+          <div class="max-w-screen-2xl mx-auto flex h-14 items-center justify-between px-6">
             {/* Left section with blog title and navigation */}
             <div class="flex items-center gap-6">
               {/* Blog title */}
@@ -55,9 +55,6 @@ export default jsxRenderer(({ children, title, description }) => {
               {/* Navigation pages */}
               <Navigation />
             </div>
-
-            {/* Empty space to push SNS icons to the right */}
-            <div class="flex-grow"></div>
 
             {/* SNS icons on right */}
             <div class="flex items-center gap-3">
