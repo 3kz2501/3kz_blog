@@ -1,1 +1,1 @@
-{"version":1,"include":["/*"],"exclude":["/.vite/*","/fonts/*","/index.html","/posts/*","/static/*"]}
+{"version":1,"include":["/*"],"exclude":["/.vite/*","/fonts/*","/index.html","/pages/*","/posts/*","/static/*"]}
