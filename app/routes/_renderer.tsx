@@ -51,7 +51,7 @@ export default jsxRenderer(({ children, title, description }) => {
             </a>
 
             {/* Divider */}
-            <div class="text-jade-dark mx-2">|</div>
+            <div class="text-jade-dark mx-6">|</div>
 
             {/* Navigation pages */}
             <div class="mx-4">
@@ -59,7 +59,7 @@ export default jsxRenderer(({ children, title, description }) => {
             </div>
 
             {/* Divider */}
-            <div class="text-jade-dark mx-2">|</div>
+            <div class="text-jade-dark mx-6">|</div>
 
             {/* SNS icons */}
             <div class="flex items-center gap-3 mx-4">
