@@ -38,18 +38,34 @@ function generatePost() {
         console.error("Please enter a description");
         askDescription(title);
       } else {
-        askIsPage(title, description);
+        askCategories(title, description);
       }
     });
   }
 
   /**
+   * Asks the user for categories for the post.
+   */
+  function askCategories(title, description) {
+    rl.question(
+      "categories (comma separated, e.g. rust,programming,tech): ",
+      (categoriesInput) => {
+        let categories = ["general"];
+        if (categoriesInput.trim()) {
+          categories = categoriesInput.split(",").map((cat) => cat.trim());
+        }
+        askIsPage(title, description, categories);
+      },
+    );
+  }
+
+  /**
    * Asks the user if this is a page or a blog post.
    */
-  function askIsPage(title, description) {
+  function askIsPage(title, description, categories) {
     rl.question("Is this a page? (y/n, default: n): ", (isPage) => {
       const isPageValue = isPage.toLowerCase() === "y";
-      askFilePath(title, description, isPageValue);
+      askFilePath(title, description, categories, isPageValue);
     });
   }
 
@@ -57,7 +73,7 @@ function generatePost() {
    * Asks the user for the file path where the post should be saved.
    * Uses a generated filename based on the date if the input is left blank.
    */
-  function askFilePath(title, description, isPage) {
+  function askFilePath(title, description, categories, isPage) {
     rl.question("filepath (leave blank for default): ", (inputPath) => {
       let filename;
       if (inputPath.trim() === "") {
@@ -73,11 +89,18 @@ function generatePost() {
       // Determine the directory based on whether this is a page or a post
       const directory = isPage ? PAGES_DIR : POSTS_DIR;
 
-      writePost(title, description, filename, directory, isPage);
+      writePost(title, description, categories, filename, directory, isPage);
     });
   }
 
-  function writePost(title, description, filename, directory, isPage) {
+  function writePost(
+    title,
+    description,
+    categories,
+    filename,
+    directory,
+    isPage,
+  ) {
     const filePath = join(__dirname, `${directory}/${filename}`);
 
     // 現在の日付を yyyy/mm/dd 形式で取得
@@ -91,10 +114,12 @@ function generatePost() {
         throw err;
       }
       // テンプレートのプレースホルダを実際の値に置き換え
+      const categoriesJson = JSON.stringify(categories);
       const updatedData = data
         .replace(/{{title}}/g, title)
         .replace(/{{description}}/g, description)
         .replace(/{{date}}/g, currentDate)
+        .replace(/\["general"\]/, categoriesJson)
         .replace(/page: false/, `page: ${isPage}`);
 
       writeFile(filePath, updatedData, (err) => {
@@ -104,7 +129,7 @@ function generatePost() {
         console.log(
           `🎉 Successfully created ${filename} as a ${
             isPage ? "page" : "post"
-          } with title, description, and date! 🎉`,
+          } with title, description, categories, and date! 🎉`,
         );
         rl.close();
       });
