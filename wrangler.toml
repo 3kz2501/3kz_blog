@@ -1,5 +1,7 @@
 name = "kz-blog"
 compatibility_date = "2025-03-02"
+compatibility_flags = ["nodejs_compat"]
 
-[site]
-bucket = "./dist"
+# Pages用の設定
+# siteセクションは不要で、pages_build_output_dirを使う
+pages_build_output_dir = "dist"
