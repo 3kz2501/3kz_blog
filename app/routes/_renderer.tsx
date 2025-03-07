@@ -1,6 +1,7 @@
 import { jsxRenderer } from "hono/jsx-renderer";
 import { Script } from "honox/server";
 import { LINK } from "../constants";
+import Navigation from "../components/Navigation";
 
 export default jsxRenderer(({ children, title, description }) => {
   const _title = title ?? "3kz Blog";
@@ -44,18 +45,22 @@ export default jsxRenderer(({ children, title, description }) => {
       <body class="main-container">
         <header class="bg-black border-b border-jade-dark">
           <div class="max-w-screen-2xl mx-auto flex h-14 items-center px-6">
-            {/* 左側の空白スペース（バランスのため） */}
-            <div class="w-1/3"></div>
-
-            {/* ブログタイトルを中央に配置 */}
-            <div class="w-1/3 flex justify-center">
-              <a href="/" class="text-jade font-bold">
+            {/* Left section with blog title and navigation */}
+            <div class="flex items-center gap-6">
+              {/* Blog title */}
+              <a href="/" class="text-jade font-bold text-xl">
                 3kz Blog
               </a>
+
+              {/* Navigation pages */}
+              <Navigation />
             </div>
 
-            {/* SNSアイコンを右に配置 */}
-            <div class="flex items-center gap-3 w-1/3 justify-end">
+            {/* Empty space to push SNS icons to the right */}
+            <div class="flex-grow"></div>
+
+            {/* SNS icons on right */}
+            <div class="flex items-center gap-3">
               <a href={LINK.X} target={"_blank"} rel={"noreferrer"} class="p-1">
                 <img
                   src="/static/twitter-alt.svg"
