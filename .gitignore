@@ -2,6 +2,7 @@ node_modules
 .wrangler
 .dev.vars
 .hono
+**/.DS_Store
 dist
 
 # Change them to your taste:
