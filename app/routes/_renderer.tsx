@@ -46,12 +46,12 @@ export default jsxRenderer(({ children, title, description }) => {
         <header class="bg-black border-b border-jade-dark">
           <div class="max-w-screen-2xl mx-auto flex h-14 items-center px-6">
             {/* Blog title */}
-            <a href="/" class="text-jade text-4xl">
+            <a href="/" class="text-jade text-3xl">
               3kz Blog
             </a>
 
             {/* Divider */}
-            <div class="text-jade-dark mx-6">|</div>
+            <div class="text-jade-dark mx-7">|</div>
 
             {/* Navigation pages */}
             <div class="mx-4">

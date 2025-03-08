@@ -6,6 +6,14 @@ export default jsxRenderer(({ children, Layout, frontmatter }) => {
 
   return (
     <Layout title={_title} description={frontmatter?.description}>
+      {/* 記事タイトルを表示 */}
+      <h1 class="mt-12 text-3xl font-bold text-jade-light mb-6">
+        {frontmatter?.title}
+      </h1>
+      {/* 投稿日を表示（frontmatterに日付がある場合） */}
+      {frontmatter?.date && (
+        <div class="text-jade-dark mb-8">{frontmatter.date}</div>
+      )}
       <div class="markdown">{children}</div>
       <div class="mt-8 mb-4">
         <a

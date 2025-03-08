@@ -60,14 +60,11 @@ function generatePost() {
   function askFilePath(title, description, isPage) {
     rl.question("filepath (leave blank for default): ", (inputPath) => {
       let filename;
+      const date = new Date().toISOString().slice(0, 10).replace(/-/g, "/");
       if (inputPath.trim() === "") {
-        const date = new Date().toISOString().slice(0, 10).replace(/-/g, "/");
-        filename = `generated-${isPage ? "page" : "post"}-${date.replace(
-          /\//g,
-          "-",
-        )}.mdx`;
+        filename = `${date.replace(/\//g, "-")}_TITLE.mdx`;
       } else {
-        filename = `${inputPath}.mdx`;
+        filename = `${date.replace(/\//g, "-")}_${inputPath}.mdx`;
       }
 
       // Determine the directory based on whether this is a page or a post
