@@ -44,30 +44,36 @@ export default jsxRenderer(({ children, title, description }) => {
       </head>
       <body class="main-container">
         <header class="bg-black border-b border-jade-dark">
-          <div class="max-w-screen-2xl mx-auto flex h-14 items-center px-6">
-            {/* Blog title */}
-            <a href="/" class="text-jade text-3xl">
+          <div class="max-w-screen-2xl mx-auto flex flex-wrap md:flex-nowrap h-auto md:h-14 items-center px-4 py-2 md:py-0 md:px-6">
+            {/* Blog title - 小さい画面では大きく表示 */}
+            <a
+              href="/"
+              class="text-jade text-2xl md:text-3xl whitespace-nowrap mr-auto md:mr-0"
+            >
               3kz Blog
             </a>
 
-            {/* Divider */}
-            <div class="text-jade-dark mx-7">|</div>
+            {/* モバイル用のスペーサー - フレックスボックスの折り返し制御用 */}
+            <div class="w-full md:hidden"></div>
 
-            {/* Navigation pages */}
-            <div class="mx-4">
+            {/* 小さい画面では非表示、中サイズ以上で表示 */}
+            <div class="hidden md:block text-jade-dark mx-5">|</div>
+
+            {/* Navigation pages - モバイルでは左寄せ */}
+            <div class="mt-2 md:mt-0 md:mx-4">
               <Navigation />
             </div>
 
-            {/* Divider */}
-            <div class="text-jade-dark mx-6">|</div>
+            {/* 小さい画面では非表示、中サイズ以上で表示 */}
+            <div class="hidden md:block text-jade-dark mx-5">|</div>
 
-            {/* SNS icons */}
-            <div class="flex items-center gap-3 mx-4">
+            {/* SNS icons - モバイルでは右寄せ */}
+            <div class="flex items-center gap-3 ml-auto md:ml-0 md:mx-2 mt-2 md:mt-0">
               <a href={LINK.X} target={"_blank"} rel={"noreferrer"} class="p-1">
                 <img
                   src="/static/twitter-alt.svg"
                   alt="x-icon"
-                  class="w-4 h-4"
+                  class="w-6 h-6 md:w-5 md:h-5"
                 />
               </a>
               <a
@@ -79,7 +85,7 @@ export default jsxRenderer(({ children, title, description }) => {
                 <img
                   src="/static/github.svg"
                   alt="github-icon"
-                  class="w-4 h-4"
+                  class="w-6 h-6 md:w-5 md:h-5"
                 />
               </a>
               <a
@@ -91,7 +97,7 @@ export default jsxRenderer(({ children, title, description }) => {
                 <img
                   src="/static/twitch.svg"
                   alt="twitch-icon"
-                  class="w-4 h-4"
+                  class="w-6 h-6 md:w-5 md:h-5"
                 />
               </a>
             </div>
