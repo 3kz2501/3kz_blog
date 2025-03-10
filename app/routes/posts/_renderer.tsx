@@ -1,5 +1,4 @@
 import { jsxRenderer } from "hono/jsx-renderer";
-import SnsButton from "../../islands/ShareButton";
 
 export default jsxRenderer(({ children, Layout, frontmatter }) => {
   const _title = `${frontmatter?.title} | 3kz Blog`;
@@ -37,7 +36,6 @@ export default jsxRenderer(({ children, Layout, frontmatter }) => {
           Home
         </a>
       </div>
-      <SnsButton title={_title} />
     </Layout>
   );
 });
