@@ -32,7 +32,10 @@ const Posts: FC = () => {
               {module.frontmatter.date}:{" "}
             </span>
             <br class="block md:hidden" />
-            <a class="text-jade underline" href={`${id.replace(/\.mdx$/, "")}`}>
+            <a
+              class="text-jade hover:underline"
+              href={`${id.replace(/\.mdx$/, "")}`}
+            >
               {module.frontmatter.title}
             </a>
           </li>
