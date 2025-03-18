@@ -13,6 +13,8 @@ export default jsxRenderer(({ children, title, description }) => {
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
         <title>{_title}</title>
         <meta property="og:title" content={_title} />
         <meta property="og:description" content={_description} />
@@ -45,12 +47,17 @@ export default jsxRenderer(({ children, title, description }) => {
       <body class="main-container">
         <header class="bg-black border-b border-jade-dark">
           <div class="max-w-screen-2xl mx-auto flex flex-wrap md:flex-nowrap h-auto md:h-14 items-center px-4 py-2 md:py-0 md:px-6">
-            {/* Blog title - 小さい画面では大きく表示 */}
+            {/* Blog title with logo - 小さい画面では大きく表示 */}
             <a
               href="/"
-              class="text-jade text-2xl md:text-3xl whitespace-nowrap mr-auto md:mr-0"
+              class="flex items-center text-jade text-2xl md:text-3xl whitespace-nowrap mr-auto md:mr-0"
             >
-              3kz Blog
+              {/* Logo SVG */}
+              <img
+                src="/static/logo.svg"
+                alt="3kz Logo"
+                class="h-8 md:h-9 w-auto mr-2"
+              />
             </a>
 
             {/* モバイル用のスペーサー - フレックスボックスの折り返し制御用 */}
