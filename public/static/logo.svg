@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- 真円 - ストロークを太く -->
+  <circle cx="100" cy="100" r="80" fill="none" stroke="#008f5d" stroke-width="16" />
+  
+  <!-- 左のI -->
+  <line x1="70" y1="23" x2="70" y2="177" stroke="#008f5d" stroke-width="14" stroke-linecap="butt" />
+
+  <!-- 中央のI -->
+  <line x1="95" y1="20" x2="95" y2="180" stroke="#008f5d" stroke-width="14" stroke-linecap="butt" />
+  
+  
+  <!-- 右のI -->
+  <line x1="120" y1="23" x2="120" y2="177" stroke="#008f5d" stroke-width="14" stroke-linecap="butt" />
+  
+  <!-- 時計回りに傾いたZ形状の記号 - ストロークを調整 -->
+  <polyline points="145,63 160,80 126,115 160,150" 
+           fill="none" 
+           stroke="#008f5d" 
+           stroke-width="14" 
+           stroke-linecap="butt"
+           stroke-linejoin="miter" />
+</svg>
