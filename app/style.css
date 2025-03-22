@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @font-face {
   font-family: "PleckJP";
   src: url("/fonts/PleckJP/PleckJP.ttf") format("truetype");
@@ -27,22 +31,6 @@ body {
   background-color: #000000;
   color: var(--jade-color);
   font-family: var(--font-family);
-}
-
-/* その他のCSSはそのまま続く */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  --jade-color: #00a86b;
-  --jade-light: #4ad295;
-  --jade-dark: #008f5d;
-}
-
-body {
-  background-color: #000000;
-  color: var(--jade-color);
 }
 
 .main-container {
