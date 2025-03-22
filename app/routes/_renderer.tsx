@@ -15,6 +15,12 @@ export default jsxRenderer(({ children, title, description }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="3kz Blog RSS Feed"
+          href="/feed.xml"
+        />
         <title>{_title}</title>
         <meta property="og:title" content={_title} />
         <meta property="og:description" content={_description} />
