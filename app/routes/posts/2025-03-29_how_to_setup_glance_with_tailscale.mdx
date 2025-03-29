@@ -1,0 +1,212 @@
+---
+title: "tailscale をつかってglance をTailnet 内でアクセスできるようにする"
+description: "tailscale とglance を組み合わせて(nginxも)自分のデバイスでのみアクセスできるように設定する"
+date: "2025/03/29"
+page: false
+published: true
+---
+
+## 目的
+* <a href="https://github.com/glanceapp/glance" target="_blank" rel="noopener noreferrer">glance</a> で作ったダッシュボードlocalhost だけで見るのがもったいないので自分だけが見れる環境でセットアップする
+* 基本的にはこちらのブログ記事を参考にしました(いやほぼパクりました)
+    * <a href="https://alexklibisz.com/2024/09/07/accessing-docker-compose-application-tailscale-tls" target="_blank" rel="noopener noreferrer">Accessing a Docker Compose application via Tailscale with TLS (HTTPS) - Alex Klibisz</a>
+
+## 必要なもの
+* docker
+* tailscale account
+* 一応Linux 環境のみで確認済み
+
+
+## やり方
+* まずglance の公式のGithub に記載されているInstall 方法でおすすめとなっているdocker compose のやり方でコード群をゲットしてくる
+
+```bash
+mkdir glance && cd glance && curl -sL https://github.com/glanceapp/docker-compose-template/archive/refs/heads/main.tar.gz | tar -xzf - --strip-components 2
+```
+* 内容物にdocker compose のファイルがあるのでそれを流用して設定を追加
+* 既存のService(glance) 以外にまずtailscale を追加する
+
+```yml
+services:
+  glance:
+    image: glanceapp/glance
+    restart: unless-stopped
+    volumes:
+      - ./config:/app/config
+      - ./assets:/app/assets
+    ports:
+      - 8080:8080
+
+  tailscale:
+    image: tailscale/tailscale
+    volumes:
+      - tailscale:/var/run/tailscale
+    environment:
+      - TS_HOSTNAME=glance
+      - TS_STATE_DIR=/var/run/tailscale
+    restart: unless-stopped
+
+```
+* tailsclae volume を作成してログインなどの認証を何度もしないでよいようにする
+* この状態で一旦 `docker compose up`  をしてtailscale のAuth を通す
+* Auth を通すとtailscale のコンソールにglance というデバイスで登録される
+* またtailscale のDNS 設定の項目でMagicDNS 機能をON にしておく必要がある(これがないとデバイス名などをつかったtailnet 経由のアクセスができない. 自分はこれで数時間つまずいた...)
+* 次にnginx を使ってリバースプロキシをたててtailscale 経由でアクセスしたときにページが表示されるようにする(プロジェクトディレクトリに ./nginx/nginx.conf というディレクトリとファイルを作成)
+```nginx.conf
+events {}
+http {
+  server {
+    resolver 127.0.0.11 [::1]:5353 valid=3600s;
+    set $backend "http://glance:8080";
+    location / {
+      proxy_pass $backend;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+  }
+}
+```
+* `$backend` はservices で指定している` glance` という名前にする
+* nginx を追加したdocker compose にする
+```yaml
+services:
+  glance:
+    container_name: glance
+    image: glanceapp/glance
+    restart: unless-stopped
+    volumes:
+      - ./config:/app/config
+      - ./assets:/app/assets
+    ports:
+      - 8080:8080
+
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    restart: unless-stopped
+    network_mode: service:tailscale
+
+  tailscale:
+    image: tailscale/tailscale
+    volumes:
+      - tailscale:/var/run/tailscale
+    environment:
+      - TS_HOSTNAME=glance
+      - TS_STATE_DIR=/var/run/tailscale
+    restart: unless-stopped
+
+volumes:
+  tailscale:
+
+```
+* nginx はtailscale のネットワークに収めるようにする
+* これで`glance.${your_tailnet}.ts.net` でアクセスできるようになるが,このままだとhttp 通信のみで証明書がないためブラウザ側で警告が出るため使いづらい.
+* なので, tailscale の証明書発行機能を使って証明書を発行する.
+* docker compose でサービス群を立ち上げたまま別Terminal で発行コマンドを打つようにする.
+* そのためにまずは証明書を保管するvolume を追加する
+```yml
+services:
+  glance:
+    container_name: glance
+    image: glanceapp/glance
+    restart: unless-stopped
+    volumes:
+      - ./config:/app/config
+      - ./assets:/app/assets
+    ports:
+      - 8080:8080
+
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - tls:/mnt/tls:ro
+    restart: unless-stopped
+    network_mode: service:tailscale
+
+  tailscale:
+    image: tailscale/tailscale
+    volumes:
+      - tailscale:/var/run/tailscale
+      - tls:/mnt/tls
+    environment:
+      - TS_HOSTNAME=glance
+      - TS_STATE_DIR=/var/run/tailscale
+    restart: unless-stopped
+
+volumes:
+  tailscale:
+  tls:
+```
+* 次にnginx のコンフィグも編集してtls 通信対応の書き方にする
+
+```nginx.conf
+events {}
+http {
+  server {
+    resolver 127.0.0.11 [::1]:5353 valid=15s;
+    set $backend "http://glance:8080";
+    listen 443 ssl;
+    ssl_certificate /mnt/tls/cert.pem;
+    ssl_certificate_key /mnt/tls/cert.key;
+    location / {
+      proxy_pass $backend;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+  }
+}
+```
+* ここまで作ったらdocker compose up してtailscale なども立ち上がった状態でコマンドを実行する
+```bash
+docker compose exec tailscale /bin/sh -c "tailscale cert --cert-file /mnt/tls/cert.pem --key-file /mnt/tls/cert.key glance.${your_tailnet}.ts.net"
+```
+* `${your_tailnet}` の部分は自身のtailscale のDNS 設定からTailnet name を参照してください
+*  成功するとtls volume に証明書が生成され下記のような返答が返ってくるはず
+
+```bash
+Wrote public cert to /mnt/tls/cert.pem
+Wrote private key to /mnt/tls/cert.key
+```
+* これで自身のtailnet に参加しているデバイスからはtailnet 経由でglance ダッシュボードにHTTPS でアクセスできるようになったはずです
+* 最後に証明書の期限が近づいたときに更新をするようなサービスを追加するか,ホストマシン側でcron など設定して更新するかなど考慮してもいいかもしれません.
+* 今回は適当にホストマシンでcron を使って毎月更新してしまうようにします.
+```Bash
+#!/bin/bash
+DOCKER_DIR="/path/to/your/docker/compose/directory"  # docker-compose.ymlがあるディレクトリ
+TAILNET="your_tailnet"  # あなたのTailnetドメイン
+DOMAIN="glance.${TAILNET}.ts.net"
+
+cd "$DOCKER_DIR" || { echo "ディレクトリが見つかりません: $DOCKER_DIR"; exit 1; }
+
+echo "$(date): 証明書更新処理を開始します: ${DOMAIN}"
+
+docker compose exec -T tailscale /bin/sh -c "tailscale cert --cert-file /mnt/tls/cert.pem --key-file /mnt/tls/cert.key ${DOMAIN}"
+
+if [ $? -eq 0 ]; then
+  echo "証明書の更新が成功しました。Nginxをリロードします..."
+  docker compose exec -T nginx nginx -s reload
+  echo "$(date): 証明書更新完了"
+else
+  echo "$(date): 証明書更新に失敗しました"
+  exit 1
+fi
+```
+* 上記を適当なところに保管し,実行権限を与えておいて
+```Bash
+crontab -e
+```
+* 下記の行を追加しておく
+```bash
+0 0 1 * * /your/script/directory/renew-cert.sh >> /var/log/tailscale-cert-renewal.log 2>&1
+```
+ * 上記の設定で毎月1日0時に実行されるようになるはず
+
+
+ ## やってみて思ったこと
+* 複数のデバイスのブラウザで設定したダッシュボードを見れるようになったので結構快適ですが,自分が使っているブラウザだと新規起動したときのHome でしか設定できないのでふと見たくなったときに新規Tab 開いても表示されずちょっとテンション下がりました(ブラウザの問題)
+* また, スマホとかだとtailscale Connect をON にしてるときしかアクセスできないのでConnect 状態にするが,その状だとスマホのときは(PCはあまり思わなかったので違うと思っているが )常にtailscale 経由でネットにアクセスするようになるので全体的にもっさりしました(自分の環境では)
+* なのでちょっと使いづらいかもです.(Android ではtailscale を経由しないでダイレクトアクセスする設定などもapp 単位ではできたのですが,ブラウザで特定ページだけとかできるかはわかりません..(しらべられてはない)
