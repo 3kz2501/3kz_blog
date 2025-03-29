@@ -18,13 +18,13 @@ published: true
 
 
 ## やり方
-* まずglance の公式のGithub に記載されているInstall 方法でおすすめとなっているdocker compose のやり方でコード群をゲットしてくる
+まずglance の公式のGithub に記載されているInstall 方法でおすすめとなっているdocker compose のやり方でコード群をゲットしてくる
 
 ```bash
 mkdir glance && cd glance && curl -sL https://github.com/glanceapp/docker-compose-template/archive/refs/heads/main.tar.gz | tar -xzf - --strip-components 2
 ```
-* 内容物にdocker compose のファイルがあるのでそれを流用して設定を追加
-* 既存のService(glance) 以外にまずtailscale を追加する
+内容物にdocker compose のファイルがあるのでそれを流用して設定を追加  
+既存のService(glance) 以外にまずtailscale を追加する
 
 ```yml
 services:
@@ -46,12 +46,18 @@ services:
       - TS_STATE_DIR=/var/run/tailscale
     restart: unless-stopped
 
+volume:
+  tailscale:
+
 ```
-* tailsclae volume を作成してログインなどの認証を何度もしないでよいようにする
-* この状態で一旦 `docker compose up`  をしてtailscale のAuth を通す
-* Auth を通すとtailscale のコンソールにglance というデバイスで登録される
-* またtailscale のDNS 設定の項目でMagicDNS 機能をON にしておく必要がある(これがないとデバイス名などをつかったtailnet 経由のアクセスができない. 自分はこれで数時間つまずいた...)
-* 次にnginx を使ってリバースプロキシをたててtailscale 経由でアクセスしたときにページが表示されるようにする(プロジェクトディレクトリに ./nginx/nginx.conf というディレクトリとファイルを作成)
+tailsclae volume を作成してログインなどの認証を何度もしないでよいようにする  
+この状態で一旦 `docker compose up`  をしてtailscale のAuth を通す  
+Auth を通すとtailscale のコンソールにglance というデバイスで登録される  
+
+* tailscale のDNS 設定の項目でMagicDNS 機能をON にしておく必要がある  
+  (これがないとデバイス名などをつかったtailnet 経由のアクセスができない. 自分はこれで数時間つまずいた...)  
+
+次にnginx を使ってリバースプロキシをたててtailscale 経由でアクセスしたときにページが表示されるようにする(プロジェクトディレクトリに ./nginx/nginx.conf というディレクトリとファイルを作成)  
 ```nginx.conf
 events {}
 http {
@@ -67,8 +73,8 @@ http {
   }
 }
 ```
-* `$backend` はservices で指定している` glance` という名前にする
-* nginx を追加したdocker compose にする
+`$backend` のドメイン名はservices で設定している` glance` という名前にする  
+nginx を追加したdocker compose にする
 ```yaml
 services:
   glance:
@@ -101,11 +107,12 @@ volumes:
   tailscale:
 
 ```
-* nginx はtailscale のネットワークに収めるようにする
-* これで`glance.${your_tailnet}.ts.net` でアクセスできるようになるが,このままだとhttp 通信のみで証明書がないためブラウザ側で警告が出るため使いづらい.
-* なので, tailscale の証明書発行機能を使って証明書を発行する.
-* docker compose でサービス群を立ち上げたまま別Terminal で発行コマンドを打つようにする.
-* そのためにまずは証明書を保管するvolume を追加する
+nginx はnetwork_mode でtailscale のネットワークに収めるようにする
+これで`glance.${your_tailnet}.ts.net` でアクセスできるようになるが,このままだとhttp 通信のみで証明書がないためブラウザ側で警告が出るため使いづらい.
+
+なので, tailscale の証明書発行機能を使って証明書を発行する  
+docker compose でサービス群を立ち上げたまま別Terminal で発行コマンドを打つようにする  
+そのためにまずは証明書を保管するvolume を追加する
 ```yml
 services:
   glance:
@@ -140,7 +147,7 @@ volumes:
   tailscale:
   tls:
 ```
-* 次にnginx のコンフィグも編集してtls 通信対応の書き方にする
+次にnginx のコンフィグも編集してtls 通信対応の書き方にする
 
 ```nginx.conf
 events {}
@@ -160,20 +167,21 @@ http {
   }
 }
 ```
-* ここまで作ったらdocker compose up してtailscale なども立ち上がった状態でコマンドを実行する
+ここまで作ったらdocker compose up してtailscale なども立ち上がった状態でコマンドを実行する
 ```bash
 docker compose exec tailscale /bin/sh -c "tailscale cert --cert-file /mnt/tls/cert.pem --key-file /mnt/tls/cert.key glance.${your_tailnet}.ts.net"
 ```
-* `${your_tailnet}` の部分は自身のtailscale のDNS 設定からTailnet name を参照してください
-*  成功するとtls volume に証明書が生成され下記のような返答が返ってくるはず
+`${your_tailnet}` の部分は自身のtailscale のDNS 設定からTailnet name を参照してください  
+ 成功するとtls volume に証明書が生成され下記のような返答が返ってくるはず
 
 ```bash
 Wrote public cert to /mnt/tls/cert.pem
 Wrote private key to /mnt/tls/cert.key
 ```
-* これで自身のtailnet に参加しているデバイスからはtailnet 経由でglance ダッシュボードにHTTPS でアクセスできるようになったはずです
-* 最後に証明書の期限が近づいたときに更新をするようなサービスを追加するか,ホストマシン側でcron など設定して更新するかなど考慮してもいいかもしれません.
-* 今回は適当にホストマシンでcron を使って毎月更新してしまうようにします.
+これで自身のtailnet に参加しているデバイスからはtailnet 経由でglance ダッシュボードにHTTPS でアクセスできるようになったはずです  
+
+最後に証明書の期限が近づいたときに更新をするようなサービスを追加するか,ホストマシン側でcron など設定して更新するかなど考慮してもいいかもしれません.  
+今回は適当にホストマシンでcron を使って毎月更新してしまうようにします.  
 ```Bash
 #!/bin/bash
 DOCKER_DIR="/path/to/your/docker/compose/directory"  # docker-compose.ymlがあるディレクトリ
@@ -195,18 +203,19 @@ else
   exit 1
 fi
 ```
-* 上記を適当なところに保管し,実行権限を与えておいて
+上記を適当なところに保管し,実行権限を与えておいて
 ```Bash
 crontab -e
 ```
-* 下記の行を追加しておく
+下記の行を追加しておく
 ```bash
 0 0 1 * * /your/script/directory/renew-cert.sh >> /var/log/tailscale-cert-renewal.log 2>&1
 ```
- * 上記の設定で毎月1日0時に実行されるようになるはず
-
+この設定で毎月1日0時に実行されるようになるはず
 
  ## やってみて思ったこと
-* 複数のデバイスのブラウザで設定したダッシュボードを見れるようになったので結構快適ですが,自分が使っているブラウザだと新規起動したときのHome でしか設定できないのでふと見たくなったときに新規Tab 開いても表示されずちょっとテンション下がりました(ブラウザの問題)
-* また, スマホとかだとtailscale Connect をON にしてるときしかアクセスできないのでConnect 状態にするが,その状だとスマホのときは(PCはあまり思わなかったので違うと思っているが )常にtailscale 経由でネットにアクセスするようになるので全体的にもっさりしました(自分の環境では)
-* なのでちょっと使いづらいかもです.(Android ではtailscale を経由しないでダイレクトアクセスする設定などもapp 単位ではできたのですが,ブラウザで特定ページだけとかできるかはわかりません..(しらべられてはない)
+複数のデバイスのブラウザで設定したダッシュボードを見れるようになったので結構快適ですが,自分が使っているブラウザだと新規起動したときのHome でしか設定できないのでふと見たくなったときに新規Tab 開いても表示されずちょっとテンション下がりました(ブラウザの問題)  
+
+また, スマホとかだとtailscale Connect をON にしてるときしかアクセスできないのでConnect 状態にするが,tailscale 経由でネットにアクセスするようになるので全体的にもっさりしました(自分の環境では)  
+なのでちょっと使いづらいかもです.  
+tailscale を経由しないでダイレクトアクセスする設定などもapp 単位ではできたのですが,ブラウザで特定ページだけとかできるかはわかりません..(しらべられてはない)
