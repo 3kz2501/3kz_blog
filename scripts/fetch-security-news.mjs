@@ -92,8 +92,8 @@ async function generateArticleWithClaude(item) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2000,
+        model: "claude-sonnet-4-5-20250929",
+        max_tokens: 30000,
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -227,8 +227,16 @@ async function main() {
 
     const article = await generateArticleWithClaude(item);
     if (article) {
-      await generateMDXFile(article, item);
-      processedCount++;
+      // High以上の深刻度のみ処理
+      if (article.severity === "high" || article.severity === "critical") {
+        await generateMDXFile(article, item);
+        processedCount++;
+        console.log(`✅ Added ${article.severity.toUpperCase()} severity article`);
+      } else {
+        console.log(
+          `⏭️  Skipping ${article.severity.toUpperCase()} severity (below threshold)`,
+        );
+      }
 
       // API rate limit対策（1秒待機）
       await new Promise((resolve) => setTimeout(resolve, 1000));
