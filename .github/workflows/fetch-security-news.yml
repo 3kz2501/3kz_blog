@@ -1,0 +1,40 @@
+name: Fetch Security News
+
+on:
+  schedule:
+    # 毎日午前9時（JST）に実行 = UTC 0時
+    - cron: "0 0 * * *"
+  workflow_dispatch: # 手動実行も可能
+
+jobs:
+  fetch-and-generate:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          npm install --no-save rss-parser node-fetch
+
+      - name: Fetch RSS and Generate Articles
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/fetch-security-news.mjs
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add app/routes/posts/*.mdx
+          git diff --staged --quiet || git commit -m "🔒 Add security news articles [automated]"
+          git push

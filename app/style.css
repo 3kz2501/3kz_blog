@@ -173,3 +173,42 @@ body {
 .text-white {
   color: var(--jade-color) !important;
 }
+
+/* セキュリティ深刻度バッジ */
+.markdown [href*="severity"] {
+  @apply inline-block px-2 py-1 rounded text-sm font-bold;
+}
+
+/* CVE IDのハイライト */
+.markdown strong:has-text("CVE") {
+  @apply text-jade-light font-mono;
+}
+
+/* 影響を受ける製品リストの強調 */
+.markdown h3:has-text("影響を受ける") + ul {
+  @apply border-l-4 border-jade-dark pl-4 my-4;
+}
+
+/* 対応方法セクションの強調 */
+.markdown h2:has-text("対応方法") {
+  @apply text-jade-light border-jade-light;
+}
+
+.markdown h2:has-text("対応方法") + p {
+  @apply bg-black border border-jade-dark rounded-lg p-4 my-4;
+}
+
+/* セキュリティアラートボックス */
+.markdown blockquote {
+  @apply bg-black border-l-4 border-jade-dark p-4 my-4 rounded-r-lg;
+}
+
+/* コードブロックの調整（脆弱性コード例用） */
+.markdown pre {
+  @apply border border-jade-dark;
+}
+
+/* タグ風のインラインコード */
+.markdown code {
+  @apply bg-jade-dark bg-opacity-20 text-jade-light px-2 py-1 rounded;
+}
