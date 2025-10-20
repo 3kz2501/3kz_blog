@@ -10,7 +10,13 @@ export default function Top() {
 
 const Posts: FC = () => {
   const posts = import.meta.glob<{
-    frontmatter: { title: string; date: string; published: boolean };
+    frontmatter: {
+      title: string;
+      date: string;
+      published: boolean;
+      tags?: string[];
+      category?: string;
+    };
   }>("./posts/*.mdx", { eager: true });
 
   // フィルタリングとソートを一緒に行う
@@ -38,6 +44,18 @@ const Posts: FC = () => {
             >
               {module.frontmatter.title}
             </a>
+            {module.frontmatter.tags && module.frontmatter.tags.length > 0 && (
+              <span class="ml-2 inline-flex gap-1">
+                {module.frontmatter.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    class="text-xs px-2 py-0.5 rounded bg-jade-dark/20 text-jade border border-jade-dark"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </span>
+            )}
           </li>
         ))}
       </ul>

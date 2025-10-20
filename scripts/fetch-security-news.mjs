@@ -146,6 +146,7 @@ severity: "${article.severity}"
 ${article.cve_id ? `cve_id: "${article.cve_id}"` : ""}
 source: "${originalItem.source}"
 original_link: "${originalItem.link}"
+tags: ["CVE", "Security", "${article.severity.charAt(0).toUpperCase() + article.severity.slice(1)}"]
 ---
 
 # ${severityEmoji[article.severity] || "🔒"} ${article.title}
@@ -183,6 +184,8 @@ ${article.mitigation}
 ---
 
 **参考リンク**: [元記事を確認](${originalItem.link})
+
+この記事は自動生成されました。内容の正確性については保証されませんので、必ず公式情報をご確認ください。
 `;
 
   await writeFile(filepath, mdxContent, "utf-8");
