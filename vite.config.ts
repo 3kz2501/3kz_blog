@@ -4,6 +4,7 @@ import mdx from "@mdx-js/rollup";
 import honox from "honox/vite";
 import client from "honox/vite/client";
 import rehypeHighlight from "rehype-highlight";
+import rehypeMermaid from "rehype-mermaid";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import { defineConfig } from "vite";
@@ -34,7 +35,16 @@ export default defineConfig(({ mode }) => {
       mdx({
         jsxImportSource: "hono/jsx",
         remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
-        rehypePlugins: [rehypeHighlight],
+        rehypePlugins: [
+          rehypeHighlight,
+          [
+            rehypeMermaid,
+            {
+              strategy: "img-svg",
+              dark: true,
+            },
+          ],
+        ],
       }),
       ssg({ entry }),
     ],

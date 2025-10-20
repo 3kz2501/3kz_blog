@@ -16,6 +16,7 @@ export const GET = createRoute(async (c) => {
       description?: string;
       published: boolean;
       categories?: string[];
+      tags?: string[];
     };
   }>("/app/routes/posts/*.mdx", { eager: true });
 
