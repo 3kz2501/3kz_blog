@@ -28,8 +28,10 @@
     "@hono/vite-cloudflare-pages": "^0.4.0",
     "@hono/vite-ssg": "^0.1.0",
     "autoprefixer": "^10.4.18",
+    "playwright": "^1.56.1",
     "postcss": "^8.4.35",
     "rehype-highlight": "^7.0.0",
+    "rehype-mermaid": "^3.0.0",
     "tailwindcss": "^3.4.1",
     "vite": "^5.1.5",
     "wrangler": "^3.31.0"
