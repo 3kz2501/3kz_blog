@@ -120,7 +120,8 @@ async function generateArticleWithClaude(item) {
 
 // MDXファイル生成
 async function generateMDXFile(article, originalItem) {
-  const date = new Date(originalItem.pubDate || Date.now());
+  // ブログ記事の公開日は生成日（今日）を使用
+  const date = new Date();
   const dateStr = date.toISOString().slice(0, 10).replace(/-/g, "/");
   const fileDate = date.toISOString().slice(0, 10);
 
