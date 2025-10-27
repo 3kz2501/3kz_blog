@@ -4,6 +4,10 @@ on:
   schedule:
     # 毎日午前9時（JST）に実行 = UTC 0時
     - cron: "0 0 * * *"
+    # 毎日午後3時（JST）に実行 = UTC 6時
+    - cron: "0 6 * * *"
+    # 毎日午後9時（JST）に実行 = UTC 12時
+    - cron: "0 12 * * *"
   workflow_dispatch: # 手動実行も可能
 
 jobs:
