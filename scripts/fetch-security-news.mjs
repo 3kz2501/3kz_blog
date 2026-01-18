@@ -81,7 +81,8 @@ async function generateArticleWithClaude(item) {
 - 必ず有効なJSONのみを出力すること
 - 情報が不足している場合は「情報なし」と記載
 - CVE IDが明示されていない場合はnullを設定
-- 専門用語は日本語化しつつ、必要に応じて英語も併記`;
+- 専門用語は日本語化しつつ、必要に応じて英語も併記
+- 【MDX互換性】HTMLタグ（<script>, <p>, <div>等）を本文中で言及する場合は、必ずバッククォートで囲んでインラインコードとして記述すること（例: \`<script>\` タグ）。これを怠るとMDXのビルドが失敗します`;
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
