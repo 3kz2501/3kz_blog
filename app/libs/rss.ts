@@ -41,7 +41,7 @@ export function generateRSSFeed(options: RSSFeedOptions): string {
 `;
 
   // 各アイテムを追加
-  items.forEach((item) => {
+  for (const item of items) {
     const itemDate = new Date(item.date).toUTCString();
 
     rss += `  <item>
@@ -50,10 +50,8 @@ export function generateRSSFeed(options: RSSFeedOptions): string {
     <guid>${item.url}</guid>
     <pubDate>${itemDate}</pubDate>
     <description>${escapeXml(item.description)}</description>
-`;
-
-    rss += `  </item>\n`;
-  });
+  </item>\n`;
+  }
 
   // RSSフッター部分を追加
   rss += `</channel>

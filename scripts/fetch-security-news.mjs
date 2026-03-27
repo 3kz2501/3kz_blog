@@ -127,7 +127,10 @@ async function generateMDXFile(article, originalItem) {
   const fileDate = date.toISOString().slice(0, 10);
 
   const identifier = article.cve_id || `SECURITY-${Date.now()}`;
-  const filename = `${fileDate}_${identifier.replace(/[^a-zA-Z0-9-]/g, "_")}.mdx`;
+  const filename = `${fileDate}_${identifier.replace(
+    /[^a-zA-Z0-9-]/g,
+    "_",
+  )}.mdx`;
   const filepath = join(POSTS_DIR, filename);
 
   const severityEmoji = {
@@ -148,7 +151,9 @@ severity: "${article.severity}"
 ${article.cve_id ? `cve_id: "${article.cve_id}"` : ""}
 source: "${originalItem.source}"
 original_link: "${originalItem.link}"
-tags: ["CVE", "Security", "${article.severity.charAt(0).toUpperCase() + article.severity.slice(1)}"]
+tags: ["CVE", "Security", "${
+    article.severity.charAt(0).toUpperCase() + article.severity.slice(1)
+  }"]
 ---
 
 # ${severityEmoji[article.severity] || "🔒"} ${article.title}
@@ -233,7 +238,9 @@ async function main() {
       if (article.severity === "high" || article.severity === "critical") {
         await generateMDXFile(article, item);
         processedCount++;
-        console.log(`✅ Added ${article.severity.toUpperCase()} severity article`);
+        console.log(
+          `✅ Added ${article.severity.toUpperCase()} severity article`,
+        );
       } else {
         console.log(
           `⏭️  Skipping ${article.severity.toUpperCase()} severity (below threshold)`,

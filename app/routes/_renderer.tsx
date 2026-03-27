@@ -14,7 +14,6 @@ export default jsxRenderer(({ children, title, description }) => {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
         <link
           rel="alternate"
           type="application/rss+xml"
@@ -32,15 +31,11 @@ export default jsxRenderer(({ children, title, description }) => {
           <link href="/app/style.css" rel="stylesheet" />
         )}
         <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.css"
-        />
-        <link
           rel="preload"
-          href="/fonts/PleckJP/PleckJP.woff2"
+          href="/fonts/PleckJP/PleckJP-Regular.ttf"
           as="font"
-          type="font/woff2"
-          crossorigin
+          type="font/truetype"
+          crossorigin="anonymous"
         />
         <style>
           {`
@@ -67,7 +62,7 @@ export default jsxRenderer(({ children, title, description }) => {
             </a>
 
             {/* モバイル用のスペーサー - フレックスボックスの折り返し制御用 */}
-            <div class="w-full md:hidden"></div>
+            <div class="w-full md:hidden" />
 
             {/* 小さい画面では非表示、中サイズ以上で表示 */}
             <div class="hidden md:block text-jade-dark mx-5">|</div>
