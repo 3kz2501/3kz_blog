@@ -5,7 +5,9 @@ const POSTS_DIR = "./app/routes/posts";
 
 async function addTagsToCVEPosts() {
   const files = await readdir(POSTS_DIR);
-  const cveFiles = files.filter((f) => f.includes("CVE-") && f.endsWith(".mdx"));
+  const cveFiles = files.filter(
+    (f) => f.includes("CVE-") && f.endsWith(".mdx"),
+  );
 
   console.log(`Found ${cveFiles.length} CVE articles`);
 
