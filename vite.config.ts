@@ -6,6 +6,7 @@ import client from "honox/vite/client";
 import rehypeHighlight from "rehype-highlight";
 import rehypeMermaid from "rehype-mermaid";
 import remarkFrontmatter from "remark-frontmatter";
+import remarkGfm from "remark-gfm";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
 import { defineConfig } from "vite";
 
@@ -34,7 +35,7 @@ export default defineConfig(({ mode }) => {
       pages(),
       mdx({
         jsxImportSource: "hono/jsx",
-        remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
+        remarkPlugins: [remarkGfm, remarkFrontmatter, remarkMdxFrontmatter],
         rehypePlugins: [
           rehypeHighlight,
           [

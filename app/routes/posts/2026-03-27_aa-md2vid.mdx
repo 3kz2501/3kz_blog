@@ -1,0 +1,168 @@
+---
+title: "Markdownで台本を書くだけで やる夫解説動画を自動生成するツールを作った"
+description: "Markdown台本からやる夫・やらない夫の掛け合い解説動画(MP4)を自動生成するOSSツール AA.md2vid の紹介"
+date: "2026/03/27"
+page: false
+published: true
+tags: ["TypeScript", "Personal Project", "Remotion", "VOICEVOX"]
+---
+
+Markdownで台本を書くだけでやる夫・やらない夫の掛け合い解説動画(MP4)を自動生成するツール「AA.md2vid」を作った.
+素材集めもタイミング合わせも全部自動.
+
+**リポジトリ**: [https://github.com/3kz2501/AA.md2vid](https://github.com/3kz2501/AA.md2vid)
+
+## 何ができるのか
+
+こんなMarkdownを書くと:
+
+```markdown
+---
+title: やる夫で学ぶビットコイン
+bgm: bgm/chillhop.mp3
+slides: slides/bitcoin.md
+characters:
+  - name: やる夫
+    voiceId: 3
+    direction: left
+  - name: やらない夫
+    voiceId: 13
+    direction: right
+---
+
+@slide 1
+
+[やる夫] ビットコインって最近よく聞くけど,何なんだお?
+
+[やらない夫:explain] ビットコインは世界初の暗号通貨だ.
+2009年にサトシ・ナカモトという人物が作ったんだ.
+
+@slide 2
+
+[やる夫:surprised] 暗号通貨って普通のお金と何が違うんだお?
+```
+
+これだけでやる夫とやらない夫がVOICEVOXの音声で喋り,Marpスライドを背景に表示しながら掛け合いする動画が生成される.
+
+## 主な特徴
+
+### 台本フォーマット
+
+`[キャラ名]` でセリフ,`[キャラ名:感情]` で表情指定.やる夫11種類,やらない夫13種類の表情に対応.
+
+### AAキャラクター
+
+やる夫はパーツ合成方式(眉・目・頬・口を個別差し替え),やらない夫は全身差し替え方式.AA表示には[aahub_light](https://fonts.aahub.org/)フォントを使用.monospaceだとAAが崩れるが,これはMS Pゴシック互換の文字幅比率を持ってるので綺麗に出る.
+
+### 口パク
+
+喋ってる間は口がパクパク動く.Remotionのフレームベース計算で120ms間隔のmouth cycle.
+
+### VOICEVOX音声合成
+
+[VOICEVOX](https://voicevox.hiroshiba.jp/)のHTTP APIで各セリフの音声を自動生成.話者IDでキャラの声を切り替え.デフォルトはやる夫=ずんだもん,やらない夫=玄野武宏.frontmatterに `pronunciations` で読み替え辞書も定義できる.
+
+### Marpスライド
+
+`@slide N` で背景のスライドを切り替え.Marp形式のMarkdownからPNGを生成して使う.
+
+### Claude Code連携
+
+[Claude Code](https://claude.ai/code)に「〇〇について解説動画を作って」と伝えるだけで,スライド作成から台本作成,レンダリングまで一括で動く.CLAUDE.mdにワークフローを書いてあるのでClaude Codeがそのまま使い方を理解してくれる.
+
+## 技術スタック
+
+| レイヤー | 技術 |
+|---------|------|
+| 動画生成 | Remotion (React + TypeScript) |
+| 音声合成 | VOICEVOX (HTTP API) |
+| AA表示 | aahub_light フォント |
+| スライド | Marp CLI |
+| 台本 | Markdown + Frontmatter |
+
+## 処理フロー
+
+```
+Markdown台本
+    │
+    ▼
+┌──────────────┐
+│  Parser      │  台本をパース
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐     ┌──────────────────┐
+│  Voice Gen   │────▶│ VOICEVOX HTTP API │
+└──────┬───────┘     └──────────────────┘
+       │ WAVファイル群 + duration情報
+       ▼
+┌──────────────┐
+│  Remotion    │  AAキャラ + 字幕 + スライド + 音声を合成
+│  Render      │
+└──────┬───────┘
+       │
+       ▼
+    out/video.mp4
+```
+
+## 使い方
+
+### 必要なもの
+
+- Node.js 18以上
+- VOICEVOX (音声合成エンジン)
+- Chromium (Marpのスライド画像化に必要)
+- ffmpeg
+
+### セットアップ
+
+```bash
+git clone https://github.com/3kz2501/AA.md2vid.git
+cd AA.md2vid
+npm install
+```
+
+### 動画を作るまでの流れ
+
+```bash
+# 1. VOICEVOXを起動しておく
+
+# 2. 台本を input/manuscripts/ に作成
+
+# 3. スライドがあればMarpでPNG化
+npx @marp-team/marp-cli --no-stdin \
+  "$(pwd)/input/slides/example.md" \
+  --images png \
+  -o "$(pwd)/input/slides/example/slide.png"
+
+# 4. プリプロセス(台本パース + 音声生成)
+npm run preprocess -- --manuscript example
+
+# 5. プレビュー
+npm run studio
+
+# 6. レンダリング
+npm run render
+# → out/video.mp4 に出力
+```
+
+## 既存技術の組み合わせ
+
+自分で書いたのは主に接着剤の部分.
+
+- **Remotion**: Reactで動画を定義するフレームワーク.`useCurrentFrame()` でフレームベースに計算するので口パクも決定論的に書ける.コードで動画を組むのでAIに生成させやすい.
+- **VOICEVOX**: HTTP APIを叩くだけでWAVが返ってくるのでスクリプトに組み込みやすい.
+- **Marp**: Markdown → スライドPNG.台本もスライドもMarkdownで完結.
+- **aahub_light**: MS Pゴシック互換の文字幅比率を持つAA表示用Webフォント(43KB).これがなかったらAA表示は無理だった.
+- **MLTファイル**: AAまとめサイトで配布されてるキャラクターデータ.やる夫はパーツ(眉・目・頬・口)がセクション分けされてたので,そこからパーツ合成方式を組めた.
+
+## きっかけ
+
+[markdown-to-zundamon](https://github.com/motemen/markdown-to-zundamon)と[remotion-voicevox-template](https://github.com/nyanko3141592/remotion-voicevox-template)のやる夫版が欲しかった.ずんだもんの立ち絵の代わりにMLTファイルからAAパーツを自動抽出して,パーツ合成で表情を切り替える仕組みにした.
+
+まだ荒削りだけど一応動く.
+
+---
+
+**リポジトリ**: [https://github.com/3kz2501/AA.md2vid](https://github.com/3kz2501/AA.md2vid)
+**ライセンス**: MIT (VOICEVOX・Remotion等の各ツールの利用規約にも従ってください)
