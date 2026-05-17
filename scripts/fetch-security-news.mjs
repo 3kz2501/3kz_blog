@@ -140,9 +140,14 @@ async function generateMDXFile(article, originalItem) {
     low: "🟢",
   };
 
+  // YAML frontmatter: use single quotes to avoid backslash escape issues (e.g. \SYSTEM)
+  // Also strip newlines and collapse whitespace to prevent multiline breakage
+  const safeTitle = article.title.replace(/\n/g, " ").replace(/'/g, "''");
+  const safeSummary = article.summary.replace(/\n/g, " ").replace(/'/g, "''");
+
   const mdxContent = `---
-title: "${article.title}"
-description: "${article.summary}"
+title: '${safeTitle}'
+description: '${safeSummary}'
 date: "${dateStr}"
 page: false
 published: true
