@@ -82,7 +82,13 @@ async function generateArticleWithClaude(item) {
 - 情報が不足している場合は「情報なし」と記載
 - CVE IDが明示されていない場合はnullを設定
 - 専門用語は日本語化しつつ、必要に応じて英語も併記
-- 【MDX互換性】HTMLタグ（<script>, <p>, <div>等）を本文中で言及する場合は、必ずバッククォートで囲んでインラインコードとして記述すること（例: \`<script>\` タグ）。これを怠るとMDXのビルドが失敗します`;
+- 【MDX互換性 — 厳守事項】この出力は MDX (JSX拡張Markdown) としてパースされます。以下のルールに違反するとビルドが失敗します:
+  1. 比較演算子 <=, >= は使用禁止。代わりに Unicode 記号 ≤, ≥ を使うこと
+  2. 矢印記号 <-, ->, <-> は使用禁止。代わりに ←, →, ↔ を使うこと
+  3. HTMLタグ名を本文中で言及する場合（<script>, <div> 等）は必ずバッククォートで囲むこと（例: \`<script>\`）
+  4. プレースホルダーや変数名に山括弧を使わないこと（例: ×<ユーザー名> → ○「ユーザー名」）
+  5. { } を本文中でリテラルとして使う場合はバッククォートで囲むこと（例: \`{config}\`）
+  6. コードブロック (\`\`\`...\`\`\`) やインラインコード内ではこれらのルールは不要`;
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -117,6 +123,68 @@ async function generateArticleWithClaude(item) {
     console.error("❌ Claude API error:", error.message);
     return null;
   }
+}
+
+/**
+ * Sanitize prose text for MDX compatibility.
+ *
+ * - Replaces comparison operators (`<=`, `>=`) that would break MDX parsing
+ *   (`<` is interpreted as a JSX tag start).
+ * - Normalizes arrow notation (`<-`, `->`, `<->`) to Unicode arrows for
+ *   visual consistency with the comparison replacements.
+ * - Warns on bare `<` followed by a letter (potential JSX parse error) so
+ *   failures surface in CI logs rather than silently breaking the build.
+ * - Fenced code blocks and inline code are preserved verbatim.
+ *
+ * @param {string} body - MDX body text (frontmatter already stripped).
+ * @returns {string} Sanitized body text.
+ */
+function sanitizeMDXProse(body) {
+  const SEP = "\0";
+  const fencedBlocks = [];
+  const inlineBlocks = [];
+
+  // Step 1: Extract fenced code blocks (must come before inline code)
+  let text = body.replace(/```[\s\S]*?```/g, (match) => {
+    const idx = fencedBlocks.length;
+    fencedBlocks.push(match);
+    return `${SEP}FENCED_${idx}${SEP}`;
+  });
+
+  // Step 2: Extract inline code (`` `...` `` including `` ``...`` `` double-backtick)
+  text = text.replace(/``[^`]+``|`[^`]+`/g, (match) => {
+    const idx = inlineBlocks.length;
+    inlineBlocks.push(match);
+    return `${SEP}INLINE_${idx}${SEP}`;
+  });
+
+  // Step 3: Replace MDX-unsafe operators and normalize arrows
+  // NOTE: order matters — <-> before <- / -> to prevent partial matches
+  text = text
+    .replace(/<->/g, "\u2194")
+    .replace(/<=/g, "\u2264")
+    .replace(/>=/g, "\u2265")
+    .replace(/<-/g, "\u2190")
+    .replace(/->/g, "\u2192");
+
+  // Step 3b: Warn on remaining bare `<` followed by a letter (likely JSX breakage)
+  const bareTagPattern = /<([a-zA-Z][^\s>]*)/g;
+  let m;
+  while ((m = bareTagPattern.exec(text)) !== null) {
+    console.warn(
+      `⚠️  MDX sanitizer: bare "<${m[1]}" detected in prose — this may break MDX parsing`,
+    );
+  }
+
+  // Step 4: Restore placeholders
+  for (let i = inlineBlocks.length - 1; i >= 0; i--) {
+    text = text.replaceAll(`${SEP}INLINE_${i}${SEP}`, inlineBlocks[i]);
+  }
+  for (let i = fencedBlocks.length - 1; i >= 0; i--) {
+    text = text.replaceAll(`${SEP}FENCED_${i}${SEP}`, fencedBlocks[i]);
+  }
+
+  return text;
 }
 
 // MDXファイル生成
@@ -200,7 +268,23 @@ ${article.mitigation}
 この記事は自動生成されました。内容の正確性については保証されませんので、必ず公式情報をご確認ください。
 `;
 
-  await writeFile(filepath, mdxContent, "utf-8");
+  // Split frontmatter and body, sanitize body only.
+  // Find closing "---" that ends the YAML front matter block. Search starts
+  // after the first newline following the opening "---" to avoid matching a
+  // "---" that appears inside a frontmatter value on the very first line.
+  const firstNewline = mdxContent.indexOf("\n", 3);
+  const fmEnd = firstNewline !== -1 ? mdxContent.indexOf("\n---", firstNewline) : -1;
+  let sanitizedContent;
+  if (fmEnd === -1) {
+    // No valid frontmatter boundary — sanitize the entire content as prose
+    sanitizedContent = sanitizeMDXProse(mdxContent);
+  } else {
+    const frontmatter = mdxContent.slice(0, fmEnd + 4); // include "\n---"
+    const bodyText = mdxContent.slice(fmEnd + 4);
+    sanitizedContent = frontmatter + sanitizeMDXProse(bodyText);
+  }
+
+  await writeFile(filepath, sanitizedContent, "utf-8");
   console.log(`✅ Generated: ${filename}`);
 }
 
